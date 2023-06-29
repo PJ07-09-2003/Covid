@@ -1,0 +1,136 @@
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity ^0.4.26;
+
+contract SmartContract {
+    struct Admin {
+        uint256 Admin_Id;
+        string Admin_name;
+        string DOB;
+        uint256 salary;
+        string Contact;
+    }
+
+    struct User {
+        uint256 User_Id;
+        string User_Name;
+        string User_Type;
+        string User_Address;
+        string User_DOB;
+        string user_Contact;
+    }
+
+    struct Slot {
+        uint256 Admin_Id;
+        uint256 User_Id;
+        uint256 Slot_Id;
+        string Slot_Timings;
+        string Slot_Address;
+        string Slot_Date;
+        string Dosage;
+    }
+
+    mapping(uint256 => Admin) admin;
+    mapping(uint256 => User) user;
+    mapping(uint256 => Slot) slots;
+
+    function setDetails1(
+        uint256 admin_id,
+        string memory admin_name_,
+        string memory admin_DOB_,
+        uint256 admin_salary_,
+        string memory admin_Contact_
+    ) public {
+        admin[admin_id] = Admin(admin_id, admin_name_, admin_DOB_, admin_salary_, admin_Contact_);
+    }
+
+    function getDetails1(uint256 admin_id)
+        public
+        view
+        returns (
+            string memory,
+            string memory,
+            uint256,
+            string memory
+        )
+    {
+        return (
+            admin[admin_id].Admin_name,
+            admin[admin_id].DOB,
+            admin[admin_id].salary,
+            admin[admin_id].Contact
+        );
+    }
+
+    function setDetails2(
+        uint256 User_Id_,
+        string memory User_Name_,
+        string memory User_Type_,
+        string memory User_Address_,
+        string memory User_DOB_,
+        string memory user_Contact_
+    ) public {
+        user[User_Id_] = User(User_Id_, User_Name_, User_Type_, User_Address_, User_DOB_, user_Contact_);
+    }
+
+    function getDetails2(uint256 User_Id_)
+        external
+        view
+        returns (
+            string memory,
+            string memory,
+            string memory,
+            string memory,
+            string memory
+        )
+    {
+        return (
+            user[User_Id_].User_Name,
+            user[User_Id_].User_Type,
+            user[User_Id_].User_Address,
+            user[User_Id_].User_DOB,
+            user[User_Id_].user_Contact
+        );
+    }
+
+    function setSlotDetails(
+        uint256 admin_id,
+        uint256 User_Id,
+        uint256 Slot_Id_,
+        string memory Slot_Timings_,
+        string memory slot_address,
+        string memory slot_date,
+        string memory dosage
+    ) public {
+        slots[Slot_Id_] = Slot(
+            admin_id,
+            User_Id,
+            Slot_Id_,
+            Slot_Timings_,
+            slot_address,
+            slot_date,
+            dosage
+        );
+    }
+
+    function getSlotDetails(uint256 Slot_Id_)
+        external
+        view
+        returns (
+            uint256,
+            uint256,
+            string memory,
+            string memory,
+            string memory,
+            string memory
+        )
+    {
+        return (
+            slots[Slot_Id_].User_Id,
+            slots[Slot_Id_].Slot_Id,
+            slots[Slot_Id_].Slot_Timings,
+            slots[Slot_Id_].Slot_Address,
+            slots[Slot_Id_].Slot_Date,
+            slots[Slot_Id_].Dosage
+        );
+    }
+}

@@ -1,0 +1,177 @@
+import sqlite3
+from web3 import Web3
+import json
+from eth_account.messages import encode_defunct
+
+ganache_url = "http://127.0.0.1:7545"
+web3 = Web3(Web3.HTTPProvider(ganache_url))
+conn = sqlite3.connect('user_database.db')
+cursor = conn.cursor()
+
+def register(username, role, password):
+    # Check if the username is already taken
+    cursor.execute("SELECT * FROM usersname WHERE username=?", (username,))
+    if cursor.fetchone() is not None:
+        print("Username already exists.")
+        return
+
+    # Insert the new user into the database
+    cursor.execute("INSERT INTO usersname (username, role, password) VALUES (?,?,?)", (username, role, password))
+    conn.commit()
+    print("Registration successful.")
+
+def login(username, role, password):
+    # Check if the username and password match
+    cursor.execute("SELECT * FROM usersname WHERE username=? AND role=? AND password=?", (username, role, password))
+    if cursor.fetchone() is not None:
+        print("Login successful.")
+        if role == 1:
+            choice = 0
+            while choice != 3:
+                print("1. Set Data (Create Record)")
+                print("2. Get Data (View Record)")
+                print("3. Close")
+                choice = int(input("Enter your operation choice: "))
+
+                if choice == 1:
+                    Admin_Id = int(input("Enter Admin_Id: "))
+                    Admin_name = input("Enter Admin_name: ")
+                    DOB = input("Enter DOB: ")
+                    salary = int(input("Enter salary: "))
+                    Contact = input("Enter the Contact: ")
+
+                    tx = contract.functions.setDetails1(Admin_Id, Admin_name, DOB, salary, Contact).transact({'from': from_address})
+                    # Wait for the transaction to be mined
+                    web3.eth.wait_for_transaction_receipt(tx)
+                    print('Admin Record is created successfully.')
+                elif choice == 2:
+                    admin_id = int(input("Enter Admin Id to view the record: "))
+                    record = contract.functions.getDetails1(admin_id).call()
+                    if record:
+                        Admin_name, DOB, salary, Contact = record
+                        print("Admin ID: {}".format(admin_id))
+                        print("Admin Name: {}".format(Admin_name))
+                        print("DOB: {}".format(DOB))
+                        print("Salary: {}".format(salary))
+                        print("Contact: {}".format(Contact))
+                    else:
+                        print("Admin Record not found.")
+
+                elif choice == 3:
+                    break
+                else:
+                    print("Invalid choice! Enter the right choice.")
+
+        elif role == 2:
+            choice = 0
+            while choice != 3:
+                print("1. Set Data")
+                print("2. Get Data")
+                print("3. Close")
+                choice = int(input("Enter your operation choice: "))
+
+                if choice == 1:
+                    User_Id = int(input("Enter the User ID: "))
+                    User_Name = input("Enter the User Name: ")
+                    User_Type = input("Enter the User Type: ")
+                    User_Address = input("Enter the User Address: ")
+                    User_DOB = input("Enter the User Date of Birth: ")
+                    user_Contact = input("Enter the User Contact: ")
+                    tx = contract.functions.setDetails2(User_Id, User_Name, User_Type, User_Address, User_DOB, user_Contact).transact({'from': from_address})
+                    # Wait for the transaction to be mined
+                    web3.eth.wait_for_transaction_receipt(tx)
+                    print("User Record is created successfully.")
+
+                elif choice == 2:
+                    User_Id = int(input("Enter the User ID to view the record: "))
+                    record = contract.functions.getDetails2(User_Id).call()
+                    if record:
+                        User_Name, User_Type, User_Address, User_DOB, user_Contact = record
+                        print("User ID: {}".format(User_Id))
+                        print("User Name: {}".format(User_Name))
+                        print("User Type: {}".format(User_Type))
+                        print("User Address: {}".format(User_Address))
+                        print("User DOB: {}".format(User_DOB))
+                        print("User Contact: {}".format(user_Contact))
+                    else:
+                        print("User Record not found.")
+                elif choice == 3:
+                    break
+                else:
+                    print("Invalid choice! Enter the right choice.")
+
+        elif role == 3:
+            choice = 0
+            while choice != 3:
+                print("1. Set Data (Create Slot)")
+                print("2. Get Data (View Slot Record)")
+                print("3. Close")
+                choice = int(input("Enter your operation choice: "))
+
+                if choice == 1:
+                    admin_id = int(input("Enter Admin ID: "))
+                    User_Id = int(input("Enter User ID: "))
+                    Slot_Id = int(input("Enter Slot ID: "))
+                    Slot_Timings = input("Enter Slot Timings: ")
+                    slot_address = input("Enter Slot Address: ")
+                    slot_date = input("Enter Slot Date: ")
+                    dosage = input("Enter Dosage: ")
+
+                    tx = contract.functions.setSlotDetails(admin_id, User_Id, Slot_Id, Slot_Timings, slot_address, slot_date, dosage).transact({'from': from_address})
+                    # Wait for the transaction to be mined
+                    web3.eth.wait_for_transaction_receipt(tx)
+                    print('Slot Record is created successfully.')
+                elif choice == 2:
+                    User_Id = int(input("Enter User ID to view the record: "))
+                    record = contract.functions.getSlotDetails(User_Id).call()
+                    if record:
+                        admin_id, User_Id, Slot_Id, Slot_Timings, slot_address, slot_date, dosage = record
+                        print("Admin ID: {}".format(admin_id))
+                        print("User ID: {}".format(User_Id))
+                        print("Slot ID: {}".format(Slot_Id))
+                        print("Slot Timings: {}".format(Slot_Timings))
+                        print("Slot Address: {}".format(slot_address))
+                        print("Slot Date: {}".format(slot_date))
+                        print("Dosage: {}".format(dosage))
+                    else:
+                        print("Record not found.")
+                elif choice == 3:
+                    break
+                else:
+                    print("Invalid choice! Enter the right choice.")
+        else:
+            print("Invalid role!")
+
+    else:
+        print("Invalid username or password.")
+
+def close_database():
+    # Close the database connection
+    conn.close()
+
+if web3.is_connected():
+    web3.eth.defaultAccount = web3.eth.accounts[0]
+    print("demo")
+    contract_address = web3.to_checksum_address("0x84565EbeE40aF2393f7F0B6A432dC75064782BAf")
+    abi = json.loads('[ 	{ 		"constant": false, 		"inputs": [ 			{ 				"name": "admin_id", 				"type": "uint256" 			}, 			{ 				"name": "admin_name_", 				"type": "string" 			}, 			{ 				"name": "admin_DOB_", 				"type": "string" 			}, 			{ 				"name": "admin_salary_", 				"type": "uint256" 			}, 			{ 				"name": "admin_Contact_", 				"type": "string" 			} 		], 		"name": "setDetails1", 		"outputs": [], 		"payable": false, 		"stateMutability": "nonpayable", 		"type": "function" 	}, 	{ 		"constant": false, 		"inputs": [ 			{ 				"name": "User_Id_", 				"type": "uint256" 			}, 			{ 				"name": "User_Name_", 				"type": "string" 			}, 			{ 				"name": "User_Type_", 				"type": "string" 			}, 			{ 				"name": "User_Address_", 				"type": "string" 			}, 			{ 				"name": "User_DOB_", 				"type": "string" 			}, 			{ 				"name": "user_Contact_", 				"type": "string" 			} 		], 		"name": "setDetails2", 		"outputs": [], 		"payable": false, 		"stateMutability": "nonpayable", 		"type": "function" 	}, 	{ 		"constant": false, 		"inputs": [ 			{ 				"name": "admin_id", 				"type": "uint256" 			}, 			{ 				"name": "User_Id", 				"type": "uint256" 			}, 			{ 				"name": "Slot_Id_", 				"type": "uint256" 			}, 			{ 				"name": "Slot_Timings_", 				"type": "string" 			}, 			{ 				"name": "slot_address", 				"type": "string" 			}, 			{ 				"name": "slot_date", 				"type": "string" 			}, 			{ 				"name": "dosage", 				"type": "string" 			} 		], 		"name": "setSlotDetails", 		"outputs": [], 		"payable": false, 		"stateMutability": "nonpayable", 		"type": "function" 	}, 	{ 		"constant": true, 		"inputs": [ 			{ 				"name": "admin_id", 				"type": "uint256" 			} 		], 		"name": "getDetails1", 		"outputs": [ 			{ 				"name": "", 				"type": "string" 			}, 			{ 				"name": "", 				"type": "string" 			}, 			{ 				"name": "", 				"type": "uint256" 			}, 			{ 				"name": "", 				"type": "string" 			} 		], 		"payable": false, 		"stateMutability": "view", 		"type": "function" 	}, 	{ 		"constant": true, 		"inputs": [ 			{ 				"name": "User_Id_", 				"type": "uint256" 			} 		], 		"name": "getDetails2", 		"outputs": [ 			{ 				"name": "", 				"type": "string" 			}, 			{ 				"name": "", 				"type": "string" 			}, 			{ 				"name": "", 				"type": "string" 			}, 			{ 				"name": "", 				"type": "string" 			}, 			{ 				"name": "", 				"type": "string" 			} 		], 		"payable": false, 		"stateMutability": "view", 		"type": "function" 	}, 	{ 		"constant": true, 		"inputs": [ 			{ 				"name": "Slot_Id_", 				"type": "uint256" 			} 		], 		"name": "getSlotDetails", 		"outputs": [ 			{ 				"name": "", 				"type": "uint256" 			}, 			{ 				"name": "", 				"type": "uint256" 			}, 			{ 				"name": "", 				"type": "string" 			}, 			{ 				"name": "", 				"type": "string" 			}, 			{ 				"name": "", 				"type": "string" 			}, 			{ 				"name": "", 				"type": "string" 			} 		], 		"payable": false, 		"stateMutability": "view", 		"type": "function" 	} ]') 
+    contract = web3.eth.contract(address=contract_address, abi=abi)
+
+    from_address = "0xad7fda06EaaBa568EAe08EEe863ED5dBe6FdF9e8"
+    print("Welcome")
+    print('For registration, press 1')
+    print('For login, press 2')
+    print('To exit, press 3')
+ch = int(input('Enter 1 to register or 2 to login: '))
+if ch == 1:
+    print('Enter username:')
+    username = input('Username: ')
+    print('Enter Role:')
+    role = int(input('Enter role (1 for Admin, 2 for User, 3 for Slot): '))
+    password = input("Set a password: ")
+    register(username, role, password)
+else:
+    username = input("Username: ")
+    print("Role:")
+    role = int(input('Enter role (1 for Admin, 2 for User, 3 for Slot): '))
+    password = input("Password: ")
+    login(username, role, password)
